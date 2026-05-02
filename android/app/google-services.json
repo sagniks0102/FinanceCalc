@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "908990332611",
+    "project_id": "nexivo-financecalc",
+    "storage_bucket": "nexivo-financecalc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:908990332611:android:8c36e6e5fcfa566765ac76",
+        "android_client_info": {
+          "package_name": "com.nexivo.financecalc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQmhQ-UTENTvBkSDfV3ad8o0w242OCyrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
