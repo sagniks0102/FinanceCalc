@@ -13,6 +13,7 @@ import 'documents_required_screen.dart';
 import 'settings_screen.dart';
 import 'history_screen.dart';
 import 'privacy_screen.dart';
+import 'weight_price_calculator.dart';
 
 import '../utils/app_settings.dart';
 import '../utils/app_translations.dart';
@@ -77,6 +78,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 _CalcItem('PPF\nCalculator'.tr, Icons.savings_rounded,
                     [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
                     () => _navigate(const PPFCalculatorScreen())),
+              ]),
+              _section('Utility Calculators'.tr, [
+                _CalcItem('Weight & Price\nCalculator'.tr, Icons.scale_rounded,
+                    [Color(0xFFEAB308), Color(0xFFFACC15)],
+                    () => _navigate(const WeightPriceCalculatorScreen())),
               ]),
               _section('Banking Calculators'.tr, [
                 _CalcItem('FD\nCalculator'.tr, Icons.account_balance_wallet_rounded,
