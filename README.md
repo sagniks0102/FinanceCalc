@@ -1,6 +1,6 @@
-# emi_calculator
+# FinanceCalc (Financial Calculator)
 
-A new Flutter project.
+A comprehensive Flutter application for calculating EMI, SIP, FD, RD, PPF, SWP, EPF, and GST.
 
 ## Getting Started
 
