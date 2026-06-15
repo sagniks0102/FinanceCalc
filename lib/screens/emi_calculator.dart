@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/slider_input_card.dart';
 import '../widgets/calculator_info_section.dart';
+import '../widgets/banner_ad_widget.dart';
+import '../utils/ad_helper.dart';
 import '../utils/app_theme.dart';
 import '../utils/app_translations.dart';
 import '../utils/app_settings.dart';
@@ -18,6 +21,7 @@ class _EMICalculatorScreenState extends State<EMICalculatorScreen> {
   double _rate = 8.5;
   double _years = 5;
   bool _amortExpanded = false;
+
 
   double get _r => _rate / 12 / 100;
   double get _n => _years * 12;
@@ -51,19 +55,23 @@ class _EMICalculatorScreenState extends State<EMICalculatorScreen> {
             style: TextStyle(color: context.text, fontSize: 18, fontWeight: FontWeight.w500),
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(children: [
-            _resultCard(),
-            _inputsSection(),
-            _breakdownTable(),
-            const SizedBox(height: 12),
-            _amortizationTable(),
-            // _shareButton(),
-            const SizedBox(height: 16),
-            _infoSection(),
-            const SizedBox(height: 24),
-          ]),
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            child: Column(children: [
+              _resultCard(),
+              _inputsSection(),
+              _breakdownTable(),
+              const SizedBox(height: 12),
+              _amortizationTable(),
+              // _shareButton(),
+              const SizedBox(height: 16),
+              _infoSection(),
+              const SizedBox(height: 24),
+            ]),
+          ),
         ),
+        bottomNavigationBar: const BannerAdWidget(),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/calculator_card.dart';
 import 'emi_calculator.dart';
 import 'sip_calculator.dart';
@@ -18,6 +19,10 @@ import 'weight_price_calculator.dart';
 import '../utils/app_settings.dart';
 import '../utils/app_translations.dart';
 import '../utils/app_theme.dart';
+import '../widgets/banner_ad_widget.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../utils/ad_helper.dart';
+import 'premium_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,9 +33,51 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  InterstitialAd? _interstitialAd;
 
-  void _navigate(Widget screen) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  @override
+  void initState() {
+    super.initState();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    // Skip loading ads for premium users
+    if (AppSettings.instance.isPremium.value) return;
+    AdHelper.loadInterstitial(onLoaded: (ad) {
+      _interstitialAd = ad;
+    });
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
+  }
+
+  void _navigate(Widget screen, {bool showAd = true}) {
+    // 1. Push the target calculator screen into the background
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+
+    // 2. Skip ad entirely for premium users
+    if (AppSettings.instance.isPremium.value) return;
+
+    // 3. If an ad is ready, show it instantly over the new screen
+    if (showAd && _interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _loadAd(); // preload next ad
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _loadAd(); // preload next ad
+        },
+      );
+      _interstitialAd!.show();
+      _interstitialAd = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _section('Utility Calculators'.tr, [
                 _CalcItem('Weight & Price\nCalculator'.tr, Icons.scale_rounded,
                     [Color(0xFFEAB308), Color(0xFFFACC15)],
-                    () => _navigate(const WeightPriceCalculatorScreen())),
+                    () => _navigate(const WeightPriceCalculatorScreen(), showAd: false)),
               ]),
               _section('Banking Calculators'.tr, [
                 _CalcItem('FD\nCalculator'.tr, Icons.account_balance_wallet_rounded,
@@ -104,6 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ]),
             ]),
           ),
+          bottomNavigationBar: const BannerAdWidget(),
         );
       },
     );
@@ -115,57 +163,77 @@ class _HomeScreenState extends State<HomeScreen> {
     child: SafeArea(
       child: ListView(padding: EdgeInsets.zero, children: [
         // ── Go Premium banner ────────────────────────────────────────
-        Container(
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
-              begin: Alignment.topLeft, end: Alignment.bottomRight,
+        ValueListenableBuilder<bool>(
+          valueListenable: AppSettings.instance.isPremium,
+          builder: (_, isPremium, __) => Container(
+            margin: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isPremium
+                    ? [Color(0xFF059669), Color(0xFF10B981)]
+                    : [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
             ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Container(
-                width: 36, height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.workspace_premium_rounded,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Container(
+                  width: 36, height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isPremium
+                        ? Icons.check_circle_rounded
+                        : Icons.workspace_premium_rounded,
                     color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 10),
-              const Text('Remove All Ads',
-                  style: TextStyle(color: Colors.white, fontSize: 16,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isPremium ? 'Premium Active ✓' : 'Remove All Ads',
+                  style: const TextStyle(color: Colors.white, fontSize: 16,
                       fontWeight: FontWeight.w700)),
+              ]),
+              if (!isPremium) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _navigate(const PremiumScreen(), showAd: false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF1D4ED8),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Go Premium',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                        SizedBox(width: 6),
+                        Icon(Icons.chevron_right_rounded, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ] else ...[
+                const SizedBox(height: 8),
+                Text('Ads removed. Thank you for supporting us! 🙏',
+                    style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 12)),
+              ],
             ]),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF1D4ED8),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Go Premium',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                    SizedBox(width: 6),
-                    Icon(Icons.chevron_right_rounded, size: 18),
-                  ],
-                ),
-              ),
-            ),
-          ]),
+          ),
         ),
 
         const SizedBox(height: 8),
@@ -204,7 +272,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }),
         _dTile(Icons.privacy_tip_outlined, 'Privacy'.tr, () {
           Navigator.pop(context);
-          _navigate(const PrivacyScreen());
+          launchUrl(
+            Uri.parse('https://appnexivo-dotcom.github.io/privacy-policy/'),
+            mode: LaunchMode.externalApplication,
+          );
         }),
 
         const SizedBox(height: 24),

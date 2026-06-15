@@ -48,9 +48,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/home_screen.dart';
 import 'utils/app_settings.dart';
 import 'utils/app_theme.dart';
+import 'utils/iap_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -62,9 +64,25 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize AdMob SDK
+  await MobileAds.instance.initialize();
+  
+  // Register this specific device as a test device to allow testing with production Ad Unit IDs
+  // This bypasses the "Account not approved yet" error and prevents invalid traffic bans.
+  RequestConfiguration configuration = RequestConfiguration(
+    testDeviceIds: ["ACDE6C26ACF49DF92BD048225A3E6966"]
+  );
+  MobileAds.instance.updateRequestConfiguration(configuration);
+
   // Send all Flutter errors to Crashlytics
   FlutterError.onError =
       FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  // Load premium status from local storage before showing any UI
+  await AppSettings.instance.loadPremiumStatus();
+
+  // Initialize IAP and restore any prior purchases
+  await IAPService.instance.initialize();
 
   runApp(const FinCalcApp());
 }

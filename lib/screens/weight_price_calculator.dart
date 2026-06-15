@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../widgets/banner_ad_widget.dart';
 import '../utils/app_theme.dart';
 import '../utils/app_translations.dart';
 import '../utils/app_settings.dart';
@@ -155,6 +156,7 @@ class _WeightPriceCalculatorScreenState
             ]),
           ),
         ),
+        bottomNavigationBar: const BannerAdWidget(),
       ),
     );
   }

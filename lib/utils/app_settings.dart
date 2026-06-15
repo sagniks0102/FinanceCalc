@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Global app settings — use AppSettings.instance to access anywhere.
 class AppSettings {
@@ -27,6 +28,22 @@ class AppSettings {
 
   // Decimal places
   final decimalPlaces = ValueNotifier<int>(2);
+
+  // Premium / ad-free status
+  final isPremium = ValueNotifier<bool>(false);
+
+  /// Call once at startup (before runApp) to restore saved premium state.
+  Future<void> loadPremiumStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    isPremium.value = prefs.getBool('is_premium') ?? false;
+  }
+
+  /// Persists premium state locally and notifies all listeners.
+  Future<void> setPremium(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_premium', value);
+    isPremium.value = value;
+  }
 
   // History of recent calculations
   final history = ValueNotifier<List<HistoryEntry>>([]);
