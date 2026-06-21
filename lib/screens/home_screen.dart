@@ -48,6 +48,7 @@ import '../utils/app_theme.dart';
 import '../widgets/banner_ad_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../utils/ad_helper.dart';
+import '../utils/remote_config_service.dart';
 import 'premium_screen.dart';
 import '../widgets/calculator_search_delegate.dart';
 
@@ -69,8 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadAd() {
-    // Skip loading ads for premium users
-    if (AppSettings.instance.isPremium.value) return;
+    // Skip loading ads for premium users or if disabled in remote config
+    if (AppSettings.instance.isPremium.value ||
+        !RemoteConfigService.instance.showInterstitialAd) {
+      return;
+    }
     AdHelper.loadInterstitial(
       onLoaded: (ad) {
         _interstitialAd = ad;
@@ -88,8 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // 1. Push the target calculator screen into the background
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
-    // 2. Skip ad entirely for premium users
-    if (AppSettings.instance.isPremium.value) return;
+    // 2. Skip ad entirely for premium users or if disabled in remote config
+    if (AppSettings.instance.isPremium.value ||
+        !RemoteConfigService.instance.showInterstitialAd) {
+      return;
+    }
 
     // 3. If an ad is ready, show it instantly over the new screen
     if (showAd && _interstitialAd != null) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../utils/ad_helper.dart';
 import '../utils/app_settings.dart';
+import '../utils/remote_config_service.dart';
 
 /// Adaptive banner ad widget — fills the full screen width.
 /// Height is determined automatically by the SDK based on screen size.
@@ -76,8 +77,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     return ValueListenableBuilder<bool>(
       valueListenable: AppSettings.instance.isPremium,
       builder: (_, isPremium, __) {
-        // Premium users: hide the banner completely
-        if (isPremium) return const SizedBox.shrink();
+        // Premium users or if remote config disabled: hide the banner completely
+        if (isPremium || !RemoteConfigService.instance.showBannerAd) {
+          return const SizedBox.shrink();
+        }
 
         if (!_isLoaded || _bannerAd == null || _adSize == null) {
           return const SizedBox.shrink();

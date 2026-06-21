@@ -53,6 +53,7 @@ import 'screens/home_screen.dart';
 import 'utils/app_settings.dart';
 import 'utils/app_theme.dart';
 import 'utils/iap_service.dart';
+import 'utils/remote_config_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -83,6 +84,9 @@ Future<void> main() async {
 
   // Initialize IAP and restore any prior purchases
   await IAPService.instance.initialize();
+
+  // Initialize Remote Config
+  await RemoteConfigService.instance.initialize();
 
   runApp(const FinCalcApp());
 }
