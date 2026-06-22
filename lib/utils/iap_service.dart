@@ -14,7 +14,7 @@ class IAPService {
   static final IAPService instance = IAPService._();
 
   // ── Product ID — must match exactly what is set in Google Play Console ──
-  static const String _productId = 'remove_ads';
+  static const String _productId = 'nexivo.financecalc.removeads.lifetime';
 
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;

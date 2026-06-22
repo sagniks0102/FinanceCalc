@@ -6,7 +6,7 @@ extension ThemeContext on BuildContext {
   Color get text => Theme.of(this).colorScheme.onSurface;
   Color get textSub => Theme.of(this).colorScheme.onSurfaceVariant;
   Color get border => Theme.of(this).colorScheme.outlineVariant;
-  
+
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 }
 
@@ -28,7 +28,11 @@ class AppTheme {
         backgroundColor: Color(0xFFF8FAFC),
         elevation: 0,
         iconTheme: IconThemeData(color: Color(0xFF0F172A)),
-        titleTextStyle: TextStyle(color: Color(0xFF0F172A), fontSize: 22, fontWeight: FontWeight.w700),
+        titleTextStyle: TextStyle(
+          color: Color(0xFF0F172A),
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -50,7 +54,11 @@ class AppTheme {
         backgroundColor: Color(0xFF111827),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }

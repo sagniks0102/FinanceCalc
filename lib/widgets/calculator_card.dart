@@ -86,6 +86,8 @@ class _CalculatorCardState extends State<CalculatorCard>
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  // color: context.textSub,
                   color: context.textSub,
                   fontSize: 11,
                   height: 1.3,

@@ -62,6 +62,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   InterstitialAd? _interstitialAd;
+  bool _isGridView = false;
 
   @override
   void initState() {
@@ -185,6 +186,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: Icon(
+                  _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+                  color: context.text,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isGridView = !_isGridView;
+                  });
+                },
+              ),
               IconButton(
                 icon: Icon(Icons.search_rounded, color: context.text),
                 onPressed: () {
@@ -966,51 +978,194 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ── Section builder ──────────────────────────────────────────────────
-  Widget _section(String title, List<_CalcItem> items) => Container(
-    width: double.infinity,
-    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-    decoration: BoxDecoration(
-      color: context.card,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: context.border, width: 1),
-    ),
-    padding: const EdgeInsets.fromLTRB(0, 18, 0, 18),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: context.text,
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
+  Widget _section(String title, List<_CalcItem> items) {
+    if (_isGridView) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        decoration: BoxDecoration(
+          color: context.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.border, width: 1),
+        ),
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: context.text,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                alignment: WrapAlignment.start,
+                children: items
+                    .map(
+                      (item) => SizedBox(
+                        width: 72,
+                        child: CalculatorCard(
+                          label: item.label,
+                          icon: item.icon,
+                          gradientColors: item.colors,
+                          onTap: item.onTap,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+            child: Text(
+              title.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.text,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
             ),
           ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: items
-                .map(
-                  (item) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: CalculatorCard(
-                      label: item.label,
-                      icon: item.icon,
-                      gradientColors: item.colors,
-                      onTap: item.onTap,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              children: items.map((item) {
+                final abbr = _getAbbr(item.label);
+                final fullForm = _getFullForm(item.label);
+                return GestureDetector(
+                  onTap: item.onTap,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    decoration: BoxDecoration(
+                      color: context.card,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        // ── Gradient badge with icon + abbreviation ──
+                        Container(
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: item.colors,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(item.icon, color: Colors.white, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                abbr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // ── Full form name ──
+                        Expanded(
+                          child: Text(
+                            fullForm,
+                            style: TextStyle(
+                              color: context.text,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                )
-                .toList(),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      );
+    }
+  }
+
+  String _getAbbr(String label) {
+    final clean = label.replaceAll('\n', ' ');
+    if (clean.contains('Interest Rates')) return '%';
+    if (clean.contains('Weight')) return 'W&P';
+    if (clean.contains('Compound')) return 'CI';
+    if (clean.contains('Simple')) return 'SI';
+    if (clean.contains('Inflation')) return 'INF';
+    if (clean.contains('Gratuity')) return 'GRT';
+    if (clean.contains('Income Tax')) return 'TAX';
+    if (clean.contains('Capital Gains')) return 'CGT';
+    if (clean.contains('Bonds Overview')) return 'BND';
+    if (clean.contains('Mutual Funds Overview')) return 'MF';
+    final parts = label.split('\n');
+    if (parts.length > 1 && parts[0].length <= 5) return parts[0];
+    return parts[0].substring(0, parts[0].length > 3 ? 3 : parts[0].length).toUpperCase();
+  }
+
+  String _getFullForm(String label) {
+    String text = label.replaceAll('\n', ' ');
+    if (text.startsWith('SIP ')) return 'SIP (Systematic Investment Plan)';
+    if (text.startsWith('Lumpsum ')) return 'Lumpsum Investment';
+    if (text.startsWith('SWP ')) return 'SWP (Systematic Withdrawal Plan)';
+    if (text.startsWith('EPF ')) return 'EPF (Employees Provident Fund)';
+    if (text.startsWith('PPF ')) return 'Public Provident Fund';
+    if (text.startsWith('ELSS ')) return 'ELSS (Equity Linked Savings Scheme)';
+    if (text.startsWith('FD ')) return 'Fixed Deposit';
+    if (text.startsWith('RD ')) return 'Recurring Deposit';
+    if (text.startsWith('SSA ')) return 'Sukanya Samriddhi Account';
+    if (text.startsWith('SCSS ')) return 'Senior Citizens Savings Scheme';
+    if (text.startsWith('KVP ')) return 'Kisan Vikas Patra';
+    if (text.startsWith('MIS ')) return 'Post Office Monthly Income Scheme';
+    if (text.startsWith('TD ')) return 'Time Deposit';
+    if (text.startsWith('NSC ')) return 'National Savings Certificate';
+    if (text.startsWith('EMI ')) return 'Loan - Basic (EMI)';
+    if (text.startsWith('NPS ')) return 'National Pension System';
+    if (text.startsWith('UPS ')) return 'Unified Pension Scheme';
+    if (text.startsWith('APS ')) return 'Atal Pension Yojana';
+    if (text.startsWith('SYM ')) return 'PM Shram Yogi Maandhan';
+    if (text.startsWith('GST ')) return 'Goods and Services Tax';
+    if (text.startsWith('CGT ')) return 'Capital Gains Tax';
+    if (text.startsWith('PLI ')) return 'Postal Life Insurance';
+    if (text.startsWith('RPLI ')) return 'Rural Postal Life Insurance';
+    if (text.startsWith('JJB ')) return 'PM Jeevan Jyoti Bima';
+    if (text.startsWith('SB ')) return 'PM Suraksha Bima Yojana';
+    if (text.startsWith('FRSB ')) return 'Floating Rate Savings Bonds';
+    if (text.startsWith('SGB ')) return 'Sovereign Gold Bond';
+    if (text.startsWith('54EC ')) return '54EC Capital Gain Bonds';
+    return text;
+  }
 }
 
 class _CalcItem {
