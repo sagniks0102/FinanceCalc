@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   InterstitialAd? _interstitialAd;
   bool _isGridView = false;
+  final Set<String> _expandedSections = {};
 
   @override
   void initState() {
@@ -127,23 +128,42 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: context.card,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: Text('Exit App'.tr, style: TextStyle(color: context.text, fontWeight: FontWeight.w700)),
-            content: Text('Are you sure you want to exit?'.tr, style: TextStyle(color: context.textSub)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Text(
+              'Exit App'.tr,
+              style: TextStyle(
+                color: context.text,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to exit?'.tr,
+              style: TextStyle(color: context.textSub),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Cancel'.tr, style: TextStyle(color: context.textSub)),
+                child: Text(
+                  'Cancel'.tr,
+                  style: TextStyle(color: context.textSub),
+                ),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEF4444),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   elevation: 0,
                 ),
-                child: Text('Exit'.tr, style: const TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Exit'.tr,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -161,374 +181,380 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Scaffold(
             key: _scaffoldKey,
             backgroundColor: context.bg,
-          drawer: _buildDrawer(context),
-          appBar: AppBar(
-            backgroundColor: context.bg,
-            elevation: 0,
-            leading: GestureDetector(
-              onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              child: Container(
-                margin: const EdgeInsets.only(left: 12),
-                decoration: BoxDecoration(
-                  color: context.text.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(10),
+            drawer: _buildDrawer(context),
+            appBar: AppBar(
+              backgroundColor: context.bg,
+              elevation: 0,
+              leading: GestureDetector(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: Container(
+                  margin: const EdgeInsets.only(left: 12),
+                  decoration: BoxDecoration(
+                    color: context.text.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.menu_rounded,
+                    color: Colors.white,
+                    size: 25,
+                  ),
                 ),
-                child: Icon(Icons.menu_rounded, color: Colors.white, size: 25),
               ),
-            ),
-            title: Text(
-              'Home'.tr,
-              style: TextStyle(
-                color: context.text,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(
-                  _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+              title: Text(
+                'Home'.tr,
+                style: TextStyle(
                   color: context.text,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _isGridView = !_isGridView;
-                  });
-                },
               ),
-              IconButton(
-                icon: Icon(Icons.search_rounded, color: context.text),
-                onPressed: () {
-                  showSearch(
-                    context: context,
-                    delegate: CalculatorSearchDelegate(onNavigate: _navigate),
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── INVESTMENT CALCULATORS ─────────────────────────────
-                _section('Investment Calculators'.tr, [
-                  _CalcItem(
-                    'SIP\nCalculator'.tr,
-                    Icons.show_chart_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const SIPCalculatorScreen()),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    _isGridView
+                        ? Icons.view_list_rounded
+                        : Icons.grid_view_rounded,
+                    color: context.text,
                   ),
-                  _CalcItem(
-                    'Lumpsum\nCalculator'.tr,
-                    Icons.bolt_rounded,
-                    [Color(0xFF0284C7), Color(0xFF0EA5E9)],
-                    () => _navigate(const LumpsumCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SWP\nCalculator'.tr,
-                    Icons.trending_down_rounded,
-                    [Color(0xFFDC2626), Color(0xFFEF4444)],
-                    () => _navigate(const SWPCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'EPF\nCalculator'.tr,
-                    Icons.account_balance_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const EPFCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'PPF\nCalculator'.tr,
-                    Icons.savings_rounded,
-                    [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
-                    () => _navigate(const PPFCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── MUTUAL FUNDS ──────────────────────────────────────
-                _section('Mutual Funds', [
-                  _CalcItem(
-                    'Mutual Funds\nOverview',
-                    Icons.pie_chart_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const LumpsumCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'ELSS\nCalculator',
-                    Icons.workspace_premium_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const ELSSCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SIP\nCalculator',
-                    Icons.show_chart_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const SIPCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SWP\nCalculator',
-                    Icons.trending_down_rounded,
-                    [Color(0xFFDC2626), Color(0xFFEF4444)],
-                    () => _navigate(const SWPCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── UTILITY CALCULATORS ───────────────────────────────
-                _section('Utility Calculators'.tr, [
-                  _CalcItem(
-                    'Weight & Price\nCalculator'.tr,
-                    Icons.scale_rounded,
-                    [Color(0xFFEAB308), Color(0xFFFACC15)],
-                    () => _navigate(
-                      const WeightPriceCalculatorScreen(),
-                      showAd: false,
-                    ),
-                  ),
-                ]),
-
-                // ── BANKING CALCULATORS ───────────────────────────────
-                _section('Banking Calculators'.tr, [
-                  _CalcItem(
-                    'FD\nCalculator'.tr,
-                    Icons.account_balance_wallet_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const FDCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'RD\nCalculator'.tr,
-                    Icons.repeat_rounded,
-                    [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
-                    () => _navigate(const RDCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'Interest\nRates',
-                    Icons.percent_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const InterestRatesScreen()),
-                  ),
-                ]),
-
-                // ── BANK & POST OFFICE ────────────────────────────────
-                _section('Bank & Post Office', [
-                  _CalcItem(
-                    'PPF\nCalculator',
-                    Icons.savings_rounded,
-                    [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
-                    () => _navigate(const PPFCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SSA\nCalculator',
-                    Icons.girl_rounded,
-                    [Color(0xFF6366F1), Color(0xFF818CF8)],
-                    () => _navigate(const SSACalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SCSS\nCalculator',
-                    Icons.elderly_rounded,
-                    [Color(0xFF9333EA), Color(0xFFA855F7)],
-                    () => _navigate(const SCSSCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'KVP\nCalculator',
-                    Icons.agriculture_rounded,
-                    [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
-                    () => _navigate(const KVPCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── POST OFFICE ───────────────────────────────────────
-                _section('Post Office', [
-                  _CalcItem(
-                    'MIS\nCalculator',
-                    Icons.mail_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const MISCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'RD\nCalculator',
-                    Icons.repeat_rounded,
-                    [Color(0xFFDC2626), Color(0xFFEF4444)],
-                    () => _navigate(const RDCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'TD\nCalculator',
-                    Icons.access_time_filled_rounded,
-                    [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
-                    () => _navigate(const TDCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'NSC\nCalculator',
-                    Icons.security_rounded,
-                    [Color(0xFFDB2777), Color(0xFFEC4899)],
-                    () => _navigate(const NSCCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'Interest\nRates',
-                    Icons.percent_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const InterestRatesScreen()),
-                  ),
-                ]),
-
-                // ── EMI CALCULATORS ───────────────────────────────────
-                _section('EMI Calculators'.tr, [
-                  _CalcItem(
-                    'EMI\nCalculator'.tr,
-                    Icons.calculate_rounded,
-                    [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                    () => _navigate(const EMICalculatorScreen()),
-                  ),
-                ]),
-
-                // ── RETIREMENT ────────────────────────────────────────
-                _section('Retirement', [
-                  _CalcItem(
-                    'NPS\nCalculator',
-                    Icons.account_balance_rounded,
-                    [Color(0xFF6366F1), Color(0xFF818CF8)],
-                    () => _navigate(const NPSCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'UPS\nCalculator',
-                    Icons.shield_rounded,
-                    [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
-                    () => _navigate(const UPSCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'EPF\nCalculator',
-                    Icons.account_balance_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const EPFCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'APS\nCalculator',
-                    Icons.volunteer_activism_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const APSCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SYM\nCalculator',
-                    Icons.engineering_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const SYMCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'Gratuity\nCalculator',
-                    Icons.card_giftcard_rounded,
-                    [Color(0xFF9333EA), Color(0xFFA855F7)],
-                    () => _navigate(const GratuityCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── TAX CALCULATORS ───────────────────────────────────
-                _section('Tax Calculators'.tr, [
-                  _CalcItem(
-                    'GST\nCalculator'.tr,
-                    Icons.receipt_long_rounded,
-                    [Color(0xFF15803D), Color(0xFF22C55E)],
-                    () => _navigate(const GSTCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'Income Tax\nCalculator',
-                    Icons.account_balance_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const IncomeTaxCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'Capital Gains\nTax',
-                    Icons.trending_up_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const CGTCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── INSURANCE ─────────────────────────────────────────
-                _section('Insurance', [
-                  _CalcItem(
-                    'PLI\nCalculator',
-                    Icons.health_and_safety_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const PLICalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'RPLI\nCalculator',
-                    Icons.local_hospital_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const RPLICalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'JJB\nCalculator',
-                    Icons.favorite_rounded,
-                    [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                    () => _navigate(const JJBCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SB\nCalculator',
-                    Icons.shield_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const SBCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── BONDS ─────────────────────────────────────────────
-                _section('Bonds', [
-                  _CalcItem(
-                    'Bonds\nOverview',
-                    Icons.article_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const BondsOverviewScreen()),
-                  ),
-                  _CalcItem(
-                    'FRSB\nCalculator',
-                    Icons.swap_vert_rounded,
-                    [Color(0xFFDC2626), Color(0xFFEF4444)],
-                    () => _navigate(const FRSBCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    'SGB\nCalculator',
-                    Icons.monetization_on_rounded,
-                    [Color(0xFF059669), Color(0xFF10B981)],
-                    () => _navigate(const SGBCalculatorScreen()),
-                  ),
-                  _CalcItem(
-                    '54EC\nBonds',
-                    Icons.gavel_rounded,
-                    [Color(0xFFDC2626), Color(0xFFEF4444)],
-                    () => _navigate(const B54ECCalculatorScreen()),
-                  ),
-                ]),
-
-                // ── GENERAL ───────────────────────────────────────────
-                _section('General', [
-                  _CalcItem(
-                    'Compound\nInterest',
-                    Icons.functions_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const CompoundInterestScreen()),
-                  ),
-                  _CalcItem(
-                    'Simple\nInterest',
-                    Icons.calculate_outlined,
-                    [Color(0xFFDB2777), Color(0xFFEC4899)],
-                    () => _navigate(const SimpleInterestScreen()),
-                  ),
-                  _CalcItem(
-                    'Inflation\nCalculator',
-                    Icons.trending_up_rounded,
-                    [Color(0xFFD97706), Color(0xFFF59E0B)],
-                    () => _navigate(const InflationCalculatorScreen()),
-                  ),
-                ]),
+                  onPressed: () {
+                    setState(() {
+                      _isGridView = !_isGridView;
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.search_rounded, color: context.text),
+                  onPressed: () {
+                    showSearch(
+                      context: context,
+                      delegate: CalculatorSearchDelegate(onNavigate: _navigate),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
               ],
             ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── INVESTMENT CALCULATORS ─────────────────────────────
+                  _section('Investment Calculators'.tr, [
+                    _CalcItem(
+                      'SIP\nCalculator'.tr,
+                      Icons.show_chart_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const SIPCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Lumpsum\nCalculator'.tr,
+                      Icons.bolt_rounded,
+                      [Color(0xFF0284C7), Color(0xFF0EA5E9)],
+                      () => _navigate(const LumpsumCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SWP\nCalculator'.tr,
+                      Icons.trending_down_rounded,
+                      [Color(0xFFDC2626), Color(0xFFEF4444)],
+                      () => _navigate(const SWPCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'EPF\nCalculator'.tr,
+                      Icons.account_balance_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const EPFCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'PPF\nCalculator'.tr,
+                      Icons.savings_rounded,
+                      [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
+                      () => _navigate(const PPFCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── MUTUAL FUNDS ──────────────────────────────────────
+                  _section('Mutual Funds', [
+                    _CalcItem(
+                      'Mutual Funds\nOverview',
+                      Icons.pie_chart_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const LumpsumCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'ELSS\nCalculator',
+                      Icons.workspace_premium_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const ELSSCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SIP\nCalculator',
+                      Icons.show_chart_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const SIPCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SWP\nCalculator',
+                      Icons.trending_down_rounded,
+                      [Color(0xFFDC2626), Color(0xFFEF4444)],
+                      () => _navigate(const SWPCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── UTILITY CALCULATORS ───────────────────────────────
+                  _section('Utility Calculators'.tr, [
+                    _CalcItem(
+                      'Weight & Price\nCalculator'.tr,
+                      Icons.scale_rounded,
+                      [Color(0xFFEAB308), Color(0xFFFACC15)],
+                      () => _navigate(
+                        const WeightPriceCalculatorScreen(),
+                        showAd: false,
+                      ),
+                    ),
+                  ]),
+
+                  // ── BANKING CALCULATORS ───────────────────────────────
+                  _section('Banking Calculators'.tr, [
+                    _CalcItem(
+                      'FD\nCalculator'.tr,
+                      Icons.account_balance_wallet_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const FDCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'RD\nCalculator'.tr,
+                      Icons.repeat_rounded,
+                      [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
+                      () => _navigate(const RDCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Interest\nRates',
+                      Icons.percent_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const InterestRatesScreen()),
+                    ),
+                  ]),
+
+                  // ── BANK & POST OFFICE ────────────────────────────────
+                  _section('Bank & Post Office', [
+                    _CalcItem(
+                      'PPF\nCalculator',
+                      Icons.savings_rounded,
+                      [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
+                      () => _navigate(const PPFCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SSA\nCalculator',
+                      Icons.girl_rounded,
+                      [Color(0xFF6366F1), Color(0xFF818CF8)],
+                      () => _navigate(const SSACalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SCSS\nCalculator',
+                      Icons.elderly_rounded,
+                      [Color(0xFF9333EA), Color(0xFFA855F7)],
+                      () => _navigate(const SCSSCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'KVP\nCalculator',
+                      Icons.agriculture_rounded,
+                      [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
+                      () => _navigate(const KVPCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── POST OFFICE ───────────────────────────────────────
+                  _section('Post Office', [
+                    _CalcItem(
+                      'MIS\nCalculator',
+                      Icons.mail_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const MISCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'RD\nCalculator',
+                      Icons.repeat_rounded,
+                      [Color(0xFFDC2626), Color(0xFFEF4444)],
+                      () => _navigate(const RDCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'TD\nCalculator',
+                      Icons.access_time_filled_rounded,
+                      [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
+                      () => _navigate(const TDCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'NSC\nCalculator',
+                      Icons.security_rounded,
+                      [Color(0xFFDB2777), Color(0xFFEC4899)],
+                      () => _navigate(const NSCCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Interest\nRates',
+                      Icons.percent_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const InterestRatesScreen()),
+                    ),
+                  ]),
+
+                  // ── EMI CALCULATORS ───────────────────────────────────
+                  _section('EMI Calculators'.tr, [
+                    _CalcItem(
+                      'EMI\nCalculator'.tr,
+                      Icons.calculate_rounded,
+                      [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      () => _navigate(const EMICalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── RETIREMENT ────────────────────────────────────────
+                  _section('Retirement', [
+                    _CalcItem(
+                      'NPS\nCalculator',
+                      Icons.account_balance_rounded,
+                      [Color(0xFF6366F1), Color(0xFF818CF8)],
+                      () => _navigate(const NPSCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'UPS\nCalculator',
+                      Icons.shield_rounded,
+                      [Color(0xFF7C3AED), Color(0xFF8B5CF6)],
+                      () => _navigate(const UPSCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'EPF\nCalculator',
+                      Icons.account_balance_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const EPFCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'APS\nCalculator',
+                      Icons.volunteer_activism_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const APSCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SYM\nCalculator',
+                      Icons.engineering_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const SYMCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Gratuity\nCalculator',
+                      Icons.card_giftcard_rounded,
+                      [Color(0xFF9333EA), Color(0xFFA855F7)],
+                      () => _navigate(const GratuityCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── TAX CALCULATORS ───────────────────────────────────
+                  _section('Tax Calculators'.tr, [
+                    _CalcItem(
+                      'GST\nCalculator'.tr,
+                      Icons.receipt_long_rounded,
+                      [Color(0xFF15803D), Color(0xFF22C55E)],
+                      () => _navigate(const GSTCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Income Tax\nCalculator',
+                      Icons.account_balance_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const IncomeTaxCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'Capital Gains\nTax',
+                      Icons.trending_up_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const CGTCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── INSURANCE ─────────────────────────────────────────
+                  _section('Insurance', [
+                    _CalcItem(
+                      'PLI\nCalculator',
+                      Icons.health_and_safety_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const PLICalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'RPLI\nCalculator',
+                      Icons.local_hospital_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const RPLICalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'JJB\nCalculator',
+                      Icons.favorite_rounded,
+                      [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                      () => _navigate(const JJBCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SB\nCalculator',
+                      Icons.shield_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const SBCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── BONDS ─────────────────────────────────────────────
+                  _section('Bonds', [
+                    _CalcItem(
+                      'Bonds\nOverview',
+                      Icons.article_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const BondsOverviewScreen()),
+                    ),
+                    _CalcItem(
+                      'FRSB\nCalculator',
+                      Icons.swap_vert_rounded,
+                      [Color(0xFFDC2626), Color(0xFFEF4444)],
+                      () => _navigate(const FRSBCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      'SGB\nCalculator',
+                      Icons.monetization_on_rounded,
+                      [Color(0xFF059669), Color(0xFF10B981)],
+                      () => _navigate(const SGBCalculatorScreen()),
+                    ),
+                    _CalcItem(
+                      '54EC\nBonds',
+                      Icons.gavel_rounded,
+                      [Color(0xFFDC2626), Color(0xFFEF4444)],
+                      () => _navigate(const B54ECCalculatorScreen()),
+                    ),
+                  ]),
+
+                  // ── GENERAL ───────────────────────────────────────────
+                  _section('General', [
+                    _CalcItem(
+                      'Compound\nInterest',
+                      Icons.functions_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const CompoundInterestScreen()),
+                    ),
+                    _CalcItem(
+                      'Simple\nInterest',
+                      Icons.calculate_outlined,
+                      [Color(0xFFDB2777), Color(0xFFEC4899)],
+                      () => _navigate(const SimpleInterestScreen()),
+                    ),
+                    _CalcItem(
+                      'Inflation\nCalculator',
+                      Icons.trending_up_rounded,
+                      [Color(0xFFD97706), Color(0xFFF59E0B)],
+                      () => _navigate(const InflationCalculatorScreen()),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+            bottomNavigationBar: const BannerAdWidget(),
           ),
-          bottomNavigationBar: const BannerAdWidget(),
-        ),
-      );
-    },
+        );
+      },
     );
   }
 
@@ -980,6 +1006,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Section builder ──────────────────────────────────────────────────
   Widget _section(String title, List<_CalcItem> items) {
     if (_isGridView) {
+      final isExpanded = _expandedSections.contains(title);
       return Container(
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -992,36 +1019,113 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Section header with expand/collapse toggle ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: context.text,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Wrap(
-                spacing: 20,
-                runSpacing: 20,
-                alignment: WrapAlignment.start,
-                children: items
-                    .map(
-                      (item) => SizedBox(
-                        width: 72,
-                        child: CalculatorCard(
-                          label: item.label,
-                          icon: item.icon,
-                          gradientColors: item.colors,
-                          onTap: item.onTap,
+              padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: context.text,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  // Only show toggle if more than 4 items (single row fits ~4)
+                  if (items.length > 4)
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          setState(() {
+                            if (isExpanded) {
+                              _expandedSections.remove(title);
+                            } else {
+                              _expandedSections.add(title);
+                            }
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isExpanded ? 'Less' : 'All',
+                                style: TextStyle(
+                                  color: context.textSub,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              AnimatedRotation(
+                                turns: isExpanded ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                child: Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: context.textSub,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    )
-                    .toList(),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            // ── Content: horizontal scroll (collapsed) or wrap (expanded) ──
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              crossFadeState: isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              firstChild: SizedBox(
+                height: 112,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (_, i) => SizedBox(
+                    width: 72,
+                    child: CalculatorCard(
+                      label: items[i].label,
+                      icon: items[i].icon,
+                      gradientColors: items[i].colors,
+                      onTap: items[i].onTap,
+                    ),
+                  ),
+                ),
+              ),
+              secondChild: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  alignment: WrapAlignment.start,
+                  children: items
+                      .map(
+                        (item) => SizedBox(
+                          width: 72,
+                          child: CalculatorCard(
+                            label: item.label,
+                            icon: item.icon,
+                            gradientColors: item.colors,
+                            onTap: item.onTap,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
             ),
           ],
@@ -1131,7 +1235,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (clean.contains('Mutual Funds Overview')) return 'MF';
     final parts = label.split('\n');
     if (parts.length > 1 && parts[0].length <= 5) return parts[0];
-    return parts[0].substring(0, parts[0].length > 3 ? 3 : parts[0].length).toUpperCase();
+    return parts[0]
+        .substring(0, parts[0].length > 3 ? 3 : parts[0].length)
+        .toUpperCase();
   }
 
   String _getFullForm(String label) {
