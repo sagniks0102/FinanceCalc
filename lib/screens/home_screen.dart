@@ -66,6 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   final Set<String> _expandedSections = {};
 
+  // Ad frequency caps
+  int _backPressCount = 0;
+  DateTime _lastAdShownTime = DateTime.now().subtract(const Duration(minutes: 5));
+
   @override
   void initState() {
     super.initState();
@@ -91,18 +95,25 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _navigate(Widget screen, {bool showAd = true}) {
-    // 1. Push the target calculator screen into the background
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  void _navigate(Widget screen, {bool showAd = true}) async {
+    // 1. Push the target calculator screen into the foreground and wait for it to pop
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
-    // 2. Skip ad entirely for premium users or if disabled in remote config
-    if (AppSettings.instance.isPremium.value ||
+    // 2. Skip ad entirely for premium users or if disabled in remote config or if showAd is false
+    if (!showAd || AppSettings.instance.isPremium.value ||
         !RemoteConfigService.instance.showInterstitialAd) {
       return;
     }
 
-    // 3. If an ad is ready, show it instantly over the new screen
-    if (showAd && _interstitialAd != null) {
+    // 3. Track back presses and time passed
+    _backPressCount++;
+    final timePassed = DateTime.now().difference(_lastAdShownTime).inMinutes;
+
+    // Rule: Show only every 3rd back press AND if 3+ minutes passed since last ad
+    bool shouldShow = _backPressCount >= 3 && timePassed >= 3;
+
+    // 4. If an ad is ready and rules are met, show it
+    if (shouldShow && _interstitialAd != null) {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
@@ -115,6 +126,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       _interstitialAd!.show();
       _interstitialAd = null;
+      _lastAdShownTime = DateTime.now();
+      _backPressCount = 0;
+    } else if (_interstitialAd == null) {
+      _loadAd(); // try to load if it failed before
     }
   }
 
