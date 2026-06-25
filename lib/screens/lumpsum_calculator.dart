@@ -174,8 +174,8 @@ class _LumpsumCalculatorScreenState extends State<LumpsumCalculatorScreen> {
     child: Column(children: [
       SliderInputCard(
         label: 'Total Investment (Lump Sum)'.tr,
-        value: _investment, min: 1000, max: 10000000, divisions: 999,
-        color: _accent, minLabel: '₹1K', maxLabel: '₹1Cr',
+        value: _investment, min: 100, max: 10000000, divisions: 9999,
+        color: _accent, minLabel: '₹100', maxLabel: '₹1Cr',
         isRupee: true,
         onChanged: (v) => setState(() => _investment = v),
       ),

@@ -205,8 +205,8 @@ class _SIPCalculatorScreenState extends State<SIPCalculatorScreen> {
     child: Column(children: [
       SliderInputCard(
         label: 'Monthly Investment'.tr,
-        value: _monthly, min: 500, max: 100000, divisions: 199,
-        color: _accent, minLabel: '₹500', maxLabel: '₹1L',
+        value: _monthly, min: 100, max: 100000, divisions: 999,
+        color: _accent, minLabel: '₹100', maxLabel: '₹1L',
         isRupee: true,
         onChanged: (v) => setState(() => _monthly = v),
       ),
@@ -400,7 +400,7 @@ class _SIPCalculatorScreenState extends State<SIPCalculatorScreen> {
             pros: [
               'Rupee cost averaging — buy more units when price is low',
               'Power of compounding grows wealth exponentially',
-              'Start with as little as ₹500/month',
+              'Start with as little as ₹100/month',
               'Flexible — pause, stop, or increase anytime',
               'No need to time the market',
             ],
