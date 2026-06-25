@@ -46,6 +46,7 @@ import '../utils/app_settings.dart';
 import '../utils/app_translations.dart';
 import '../utils/app_theme.dart';
 import '../widgets/banner_ad_widget.dart';
+import '../widgets/mrec_ad_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../utils/ad_helper.dart';
 import '../utils/remote_config_service.dart';
@@ -364,6 +365,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       () => _navigate(const KVPCalculatorScreen()),
                     ),
                   ]),
+
+                  const Center(child: MrecAdWidget()),
+                  const SizedBox(height: 8),
 
                   // ── POST OFFICE ───────────────────────────────────────
                   _section('Post Office', [
