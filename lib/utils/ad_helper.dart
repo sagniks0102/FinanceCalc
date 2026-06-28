@@ -17,10 +17,12 @@ class AdHelper {
   static const String _testInterstitialAdUnitId =
       'ca-app-pub-3940256099942544/1033173712';
 
-  // ── Active IDs: Forced test ads for internal release testing ────────────────
-  static String get bannerAdUnitId => _testBannerAdUnitId;
+  // ── Active IDs: auto-switch based on build mode ─────────────────────
+  static String get bannerAdUnitId =>
+      kReleaseMode ? _prodBannerAdUnitId : _testBannerAdUnitId;
 
-  static String get interstitialAdUnitId => _testInterstitialAdUnitId;
+  static String get interstitialAdUnitId =>
+      kReleaseMode ? _prodInterstitialAdUnitId : _testInterstitialAdUnitId;
 
   // ── Load Interstitial ────────────────────────────────────────────────
   /// Loads an interstitial ad and calls [onLoaded] when ready.

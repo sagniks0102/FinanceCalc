@@ -58,47 +58,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             indent: 64, endIndent: 16),
       ]);
 
-  Widget _actionTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    String? subtitle,
-    required VoidCallback onTap,
-  }) =>
-      Column(children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(children: [
-              Container(
-                width: 34, height: 34,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 18, color: iconColor),
-              ),
-              const SizedBox(width: 14),
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title.tr,
-                      style: TextStyle(fontSize: 14, color: context.text)),
-                  if (subtitle != null)
-                    Text(subtitle.tr,
-                        style: TextStyle(fontSize: 11, color: context.textSub)),
-                ],
-              )),
-              Icon(Icons.chevron_right_rounded,
-                  size: 18, color: context.textSub),
-            ]),
-          ),
-        ),
-        Divider(height: 1, color: context.border,
-            indent: 64, endIndent: 16),
-      ]);
-
   // ── Pickers ────────────────────────────────────────────────────────
   void _showPicker<T>(
       String title, List<T> options, T current,
@@ -140,38 +99,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         )),
         const SizedBox(height: 24),
       ]),
-    );
-  }
-
-  void _clearHistory() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: context.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Clear History'.tr,
-            style: TextStyle(color: context.text, fontSize: 16)),
-        content: Text(
-            'All calculation history will be permanently deleted.'.tr,
-            style: TextStyle(color: context.textSub, fontSize: 13)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel',
-                  style: TextStyle(color: context.textSub))),
-          TextButton(
-              onPressed: () {
-                _settings.clearHistory();
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: const Text('✓ History cleared'),
-                  backgroundColor: context.card,
-                ));
-              },
-              child: const Text('Clear',
-                  style: TextStyle(color: Color(0xFFEF4444)))),
-        ],
-      ),
     );
   }
 
@@ -294,13 +221,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               ),
-              // _actionTile(
-              //   icon: Icons.history_rounded,
-              //   iconColor: const Color(0xFFEF4444),
-              //   title: 'Clear History',
-              //   subtitle: 'Delete all saved calculations',
-              //   onTap: _clearHistory,
-              // ),
               const SizedBox(height: 32),
             ]),
           ),

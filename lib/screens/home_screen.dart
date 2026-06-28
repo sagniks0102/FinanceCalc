@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/calculator_card.dart';
 import 'emi_calculator.dart';
@@ -142,10 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<bool> _onWillPop() async {
+  Future<bool> _showExitDialog() async {
     return await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (ctx) => AlertDialog(
             backgroundColor: context.card,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
@@ -163,14 +164,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
+                onPressed: () => Navigator.of(ctx).pop(false),
                 child: Text(
                   'Cancel'.tr,
                   style: TextStyle(color: context.textSub),
                 ),
               ),
               ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () => Navigator.of(ctx).pop(true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEF4444),
                   foregroundColor: Colors.white,
@@ -195,8 +196,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return ValueListenableBuilder<String>(
       valueListenable: AppSettings.instance.language,
       builder: (context, lang, child) {
-        return WillPopScope(
-          onWillPop: _onWillPop,
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldPop = await _showExitDialog();
+            if (shouldPop && mounted) {
+              SystemNavigator.pop();
+            }
+          },
           child: Scaffold(
             key: _scaffoldKey,
             backgroundColor: context.bg,
@@ -214,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Icon(
                     Icons.menu_rounded,
-                    color: Colors.white,
+                    color: context.text,
                     size: 25,
                   ),
                 ),
@@ -588,6 +596,23 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: EdgeInsets.zero,
         children: [
           // ── Go Premium banner ────────────────────────────────────────
+          // ── App Name Header ──────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            alignment: Alignment.center,
+            child: Text(
+              'Finance Calculator',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: context.text,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+
+          /* 
+          // Temporarily disabled Premium banner (will enable in future)
           ValueListenableBuilder<bool>(
             valueListenable: AppSettings.instance.isPremium,
             builder: (_, isPremium, __) => Container(
@@ -682,6 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          */
 
           const SizedBox(height: 8),
 
@@ -692,10 +718,6 @@ class _HomeScreenState extends State<HomeScreen> {
             'Dashboard'.tr,
             () => Navigator.pop(context),
           ),
-          // _dTile(Icons.history_rounded, 'History'.tr, () {
-          //   Navigator.pop(context);
-          //   _navigate(const HistoryScreen());
-          // }),
           _dTile(Icons.description_rounded, 'Documents Required'.tr, () {
             Navigator.pop(context);
             _navigate(const DocumentsRequiredScreen());
@@ -809,7 +831,19 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  const message = 'Hey! Check out this free Financial Calculator app — '
+                      'it has EMI, SIP, Lumpsum, GST, EPF, PPF calculators and more!\n\n'
+                      'Download: https://play.google.com/store/apps/details?id=com.nexivo.financecalc';
+                  Clipboard.setData(const ClipboardData(text: message));
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('✓ Invite message copied to clipboard!'),
+                      backgroundColor: context.card,
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.copy_rounded, size: 16),
                 label: const Text('Copy Invite Message'),
                 style: ElevatedButton.styleFrom(
@@ -890,6 +924,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: stars > 0
                       ? () {
                           Navigator.pop(ctx);
+                          // Open the Play Store listing for ratings
+                          launchUrl(
+                            Uri.parse('https://play.google.com/store/apps/details?id=com.nexivo.financecalc'),
+                            mode: LaunchMode.externalApplication,
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -1015,7 +1054,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: 16,
                   color: context.textSub,
                 ),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Coming soon on Play Store!'),
+                      backgroundColor: context.card,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 16),

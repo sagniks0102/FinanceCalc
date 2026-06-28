@@ -1,4 +1,4 @@
-package com.example.emi_calculator
+package com.nexivo.financecalc
 
 import io.flutter.embedding.android.FlutterActivity
 
