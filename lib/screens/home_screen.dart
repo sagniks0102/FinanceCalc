@@ -68,7 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Ad frequency caps
   int _backPressCount = 0;
-  DateTime _lastAdShownTime = DateTime.now().subtract(const Duration(minutes: 5));
+  DateTime _lastAdShownTime = DateTime.now().subtract(
+    const Duration(minutes: 5),
+  );
 
   @override
   void initState() {
@@ -100,7 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
     // 2. Skip ad entirely for premium users or if disabled in remote config or if showAd is false
-    if (!showAd || AppSettings.instance.isPremium.value ||
+    if (!showAd ||
+        AppSettings.instance.isPremium.value ||
         !RemoteConfigService.instance.showInterstitialAd) {
       return;
     }
@@ -291,9 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ]),
 
                   // ── MUTUAL FUNDS ──────────────────────────────────────
-                  _section('Mutual Funds', [
+                  _section('Mutual Funds Calculator', [
                     _CalcItem(
-                      'Mutual Funds\nOverview',
+                      'Lumpsum\nCalculator',
                       Icons.pie_chart_rounded,
                       [Color(0xFF059669), Color(0xFF10B981)],
                       () => _navigate(const LumpsumCalculatorScreen()),
