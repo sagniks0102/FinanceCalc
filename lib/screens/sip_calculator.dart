@@ -287,8 +287,7 @@ class _SIPCalculatorScreenState extends State<SIPCalculatorScreen> {
       ('Starting monthly SIP'.tr, AppSettings.instance.formatRupee(_monthly), context.text),
       if (_stepUp > 0)
         ('Step-up rate'.tr, '${_stepUp.toStringAsFixed(0)}% per year', context.text),
-      if (_stepUp > 0)
-        ('Total investment'.tr, AppSettings.instance.formatRupee(_invested, noDecimals: true), context.text),
+      ('Total investment'.tr, AppSettings.instance.formatRupee(_invested, noDecimals: true), context.text),
       ('Expected return rate'.tr, '${_rate.toStringAsFixed(1)}% p.a.', context.text),
       ('Investment period'.tr, '${_years.toInt()} years', context.text),
       ('Est. returns'.tr, AppSettings.instance.formatRupee(_totalGains, noDecimals: true), const Color(0xFF10B981)),

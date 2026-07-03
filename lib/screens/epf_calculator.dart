@@ -32,30 +32,32 @@ class _EPFCalculatorScreenState extends State<EPFCalculatorScreen> {
 
   double get _years => (_retirementAge - _currentAge).clamp(0, 42).toDouble();
 
-  // Month-by-month corpus calculation with salary growth
+  // Month-by-month corpus calculation with salary growth and yearly interest credit
   double get _totalCorpus {
     final r = _rate / 12 / 100;
-    final totalMonths = (_years * 12).toInt();
     double corpus = 0;
-    for (int month = 0; month < totalMonths; month++) {
-      final yearIndex = month ~/ 12;
-      final salary = _basicSalary * pow(1 + _salaryGrowth / 100, yearIndex);
+    for (int y = 0; y < _years.toInt(); y++) {
+      final salary = _basicSalary * pow(1 + _salaryGrowth / 100, y);
       final monthlyEmployee = salary * _employeeContrib / 100;
       final monthlyEmployer = salary * _employerEpfRate / 100;
       final monthlyTotal = monthlyEmployee + monthlyEmployer;
-      final monthsToGrow = totalMonths - month;
-      corpus += monthlyTotal * pow(1 + r, monthsToGrow);
+      
+      double yearlyInterest = 0;
+      for (int m = 0; m < 12; m++) {
+        yearlyInterest += corpus * r;
+        corpus += monthlyTotal;
+      }
+      corpus += yearlyInterest;
     }
     return corpus;
   }
 
   double get _totalInvested {
-    final totalMonths = (_years * 12).toInt();
     double invested = 0;
-    for (int month = 0; month < totalMonths; month++) {
-      final yearIndex = month ~/ 12;
-      final salary = _basicSalary * pow(1 + _salaryGrowth / 100, yearIndex);
-      invested += salary * (_employeeContrib + _employerEpfRate) / 100;
+    for (int y = 0; y < _years.toInt(); y++) {
+      final salary = _basicSalary * pow(1 + _salaryGrowth / 100, y);
+      final monthlyTotal = salary * (_employeeContrib + _employerEpfRate) / 100;
+      invested += monthlyTotal * 12;
     }
     return invested;
   }

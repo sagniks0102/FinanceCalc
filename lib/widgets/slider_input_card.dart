@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_theme.dart';
+import '../utils/app_settings.dart';
 
 class SliderInputCard extends StatefulWidget {
   final String label;
@@ -78,10 +79,10 @@ class _SliderInputCardState extends State<SliderInputCard> {
   }
 
   String _fmt(double v) =>
-      widget.isDecimal ? v.toStringAsFixed(1) : v.toInt().toString();
+      AppSettings.instance.formatNumber(v, noDecimals: !widget.isDecimal);
 
   void _commit(String text) {
-    final raw = double.tryParse(text);
+    final raw = double.tryParse(text.replaceAll(',', ''));
     if (raw == null || text.isEmpty) {
       _ctrl.text = _fmt(_val);
       return;
@@ -93,7 +94,7 @@ class _SliderInputCardState extends State<SliderInputCard> {
   }
 
   void _onTextChanged(String text) {
-    final raw = double.tryParse(text);
+    final raw = double.tryParse(text.replaceAll(',', ''));
     if (raw == null) return;
     final clamped = raw.clamp(widget.min, widget.max).toDouble();
     setState(() => _val = clamped);
@@ -136,7 +137,8 @@ class _SliderInputCardState extends State<SliderInputCard> {
                     decimal: widget.isDecimal, signed: false),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(
-                      RegExp(widget.isDecimal ? r'[\d.]' : r'\d')),
+                      RegExp(widget.isDecimal ? r'[\d.,]' : r'[\d,]')),
+                  _NumberFormatter(widget.isDecimal),
                 ],
                 textAlign: TextAlign.right,
                 style: TextStyle(
@@ -197,6 +199,55 @@ class _SliderInputCardState extends State<SliderInputCard> {
                   TextStyle(fontSize: 10, color: context.textSub.withValues(alpha: 0.8))),
         ]),
       ]),
+    );
+  }
+}
+
+class _NumberFormatter extends TextInputFormatter {
+  final bool isDecimal;
+  _NumberFormatter(this.isDecimal);
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) return newValue;
+    
+    String cleanText = newValue.text.replaceAll(',', '');
+    if (cleanText.isEmpty) return newValue;
+    
+    final parts = cleanText.split('.');
+    double? intPart = double.tryParse(parts[0].isEmpty ? '0' : parts[0]);
+    if (intPart == null) return oldValue;
+    
+    String finalString = AppSettings.instance.formatNumber(intPart, noDecimals: true);
+    
+    if (isDecimal && cleanText.contains('.')) {
+      if (parts.length > 1) {
+        finalString += '.${parts[1]}';
+      } else {
+        finalString += '.';
+      }
+    }
+    
+    int nonCommaCharsBeforeCursor = 0;
+    for (int i = 0; i < newValue.selection.end && i < newValue.text.length; i++) {
+      if (newValue.text[i] != ',') nonCommaCharsBeforeCursor++;
+    }
+    
+    int newCursorOffset = 0;
+    int nonCommaCount = 0;
+    for (int i = 0; i < finalString.length; i++) {
+      if (finalString[i] != ',') nonCommaCount++;
+      if (nonCommaCount == nonCommaCharsBeforeCursor) {
+        newCursorOffset = i + 1;
+        break;
+      }
+    }
+    if (nonCommaCharsBeforeCursor == 0) newCursorOffset = 0;
+    
+    return TextEditingValue(
+      text: finalString,
+      selection: TextSelection.collapsed(offset: newCursorOffset),
     );
   }
 }
