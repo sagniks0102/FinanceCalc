@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../widgets/calculator_card.dart';
 import 'emi_calculator.dart';
 import 'sip_calculator.dart';
@@ -786,6 +787,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── System action dialogs ────────────────────────────────────────────
   void _showTellAFriend() {
+    const String appLink = 'https://play.google.com/store/apps/details?id=com.nexivo.financecalc';
+    const String shareMessage = 'Hey! Check out this free Financial Calculator app — '
+        'it has EMI, SIP, Lumpsum, GST, EPF, PPF calculators and more!\n\n'
+        'Download: $appLink';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: context.card,
@@ -828,27 +834,46 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            // ── Share App button (native share sheet) ──
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  const message = 'Hey! Check out this free Financial Calculator app — '
-                      'it has EMI, SIP, Lumpsum, GST, EPF, PPF calculators and more!\n\n'
-                      'Download: https://play.google.com/store/apps/details?id=com.nexivo.financecalc';
-                  Clipboard.setData(const ClipboardData(text: message));
+                  Navigator.pop(context);
+                  Share.share(shareMessage);
+                },
+                icon: const Icon(Icons.share_rounded, size: 16),
+                label: const Text('Share App'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6366F1),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // ── Copy Link button ──
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(const ClipboardData(text: appLink));
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('✓ Invite message copied to clipboard!'),
+                      content: const Text('✓ App link copied to clipboard!'),
                       backgroundColor: context.card,
                     ),
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 16),
-                label: const Text('Copy Invite Message'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  foregroundColor: Colors.white,
+                label: const Text('Copy Link'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF6366F1),
+                  side: const BorderSide(color: Color(0xFF6366F1)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -864,211 +889,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRateApp() {
-    int stars = 0;
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setLocal) => AlertDialog(
-          backgroundColor: context.card,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.calculate_rounded,
-                size: 48,
-                color: Color(0xFF6366F1),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Enjoying the app?',
-                style: TextStyle(
-                  color: context.text,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Rate us on the Play Store',
-                style: TextStyle(color: context.textSub, fontSize: 13),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  5,
-                  (i) => GestureDetector(
-                    onTap: () => setLocal(() => stars = i + 1),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Icon(
-                        stars > i
-                            ? Icons.star_rounded
-                            : Icons.star_outline_rounded,
-                        size: 36,
-                        color: stars > i
-                            ? const Color(0xFFF59E0B)
-                            : context.border,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: stars > 0
-                      ? () {
-                          Navigator.pop(ctx);
-                          // Open the Play Store listing for ratings
-                          launchUrl(
-                            Uri.parse('https://play.google.com/store/apps/details?id=com.nexivo.financecalc'),
-                            mode: LaunchMode.externalApplication,
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Thanks for the $stars-star rating! ⭐',
-                              ),
-                              backgroundColor: context.card,
-                            ),
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: context.border,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Submit Rating',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actionsPadding: EdgeInsets.zero,
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                'Maybe later',
-                style: TextStyle(color: Color(0xFF64748B)),
-              ),
-            ),
-          ],
-        ),
-      ),
+    launchUrl(
+      Uri.parse('https://play.google.com/store/apps/details?id=com.nexivo.financecalc'),
+      mode: LaunchMode.externalApplication,
     );
   }
 
   void _showMoreApps() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: context.card,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) {
-        final apps = [
-          (
-            'Unit Converter',
-            'Convert length, weight, temperature & more',
-            Icons.swap_horiz_rounded,
-            Color(0xFF0EA5E9),
-          ),
-          (
-            'Currency Converter',
-            'Live exchange rates for 150+ currencies',
-            Icons.currency_exchange_rounded,
-            Color(0xFF22C55E),
-          ),
-          (
-            'Age Calculator',
-            'Calculate exact age in years, months & days',
-            Icons.cake_rounded,
-            Color(0xFFF59E0B),
-          ),
-          (
-            'BMI Calculator',
-            'Check your Body Mass Index instantly',
-            Icons.monitor_weight_rounded,
-            Color(0xFFEF4444),
-          ),
-        ];
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: context.textSub,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Text(
-              'More Apps',
-              style: TextStyle(
-                color: context.text,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...apps.map(
-              (a) => ListTile(
-                leading: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: a.$4.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(a.$3, color: a.$4, size: 22),
-                ),
-                title: Text(
-                  a.$1,
-                  style: TextStyle(
-                    color: context.text,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  a.$2,
-                  style: TextStyle(color: context.textSub, fontSize: 11),
-                ),
-                trailing: Icon(
-                  Icons.open_in_new_rounded,
-                  size: 16,
-                  color: context.textSub,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Coming soon on Play Store!'),
-                      backgroundColor: context.card,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
-      },
+    launchUrl(
+      Uri.parse('https://play.google.com/store/apps/developer?id=Nexivo+Apps'),
+      mode: LaunchMode.externalApplication,
     );
   }
 
