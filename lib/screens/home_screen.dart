@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               title: Text(
-                'Home'.tr,
+                'Finance Calculator'.tr,
                 style: TextStyle(
                   color: context.text,
                   fontSize: 22,
