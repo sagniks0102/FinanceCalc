@@ -15,14 +15,14 @@ class SSACalculatorScreen extends StatefulWidget {
 
 class _SSACalculatorScreenState extends State<SSACalculatorScreen> {
   double _yearlyDeposit = 50000;
-  double _rate = 8.2;
+  final double _rate = 8.2;
   double _girlAge = 5;
 
   static const Color _accent = Color(0xFF6366F1);
 
   // SSA: deposit for 15 years, maturity at 21 years from account opening
   int get _depositYears => 15;
-  int get _maturityYears => (21 - _girlAge.toInt()).clamp(15, 21);
+  int get _maturityYears => 21;
 
   double get _totalDeposited => _yearlyDeposit * _depositYears;
 
@@ -91,8 +91,6 @@ class _SSACalculatorScreenState extends State<SSACalculatorScreen> {
   Widget _sliders() => Padding(padding: const EdgeInsets.all(16), child: Column(children: [
     SliderInputCard(label: 'Yearly Deposit', value: _yearlyDeposit, min: 250, max: 150000, divisions: 149, color: _accent, minLabel: '₹250', maxLabel: '₹1.5L', isRupee: true, onChanged: (v) => setState(() => _yearlyDeposit = v)),
     const SizedBox(height: 12),
-    SliderInputCard(label: 'Interest Rate (% p.a.)', value: _rate, min: 5, max: 12, divisions: 70, color: const Color(0xFF059669), minLabel: '5%', maxLabel: '12%', suffix: '%', isDecimal: true, onChanged: (v) => setState(() => _rate = v)),
-    const SizedBox(height: 12),
     SliderInputCard(label: 'Girl\'s Age (years)', value: _girlAge, min: 0, max: 10, divisions: 10, color: const Color(0xFFDB2777), minLabel: '0', maxLabel: '10', suffix: ' yrs', onChanged: (v) => setState(() => _girlAge = v)),
   ]));
 
@@ -100,8 +98,9 @@ class _SSACalculatorScreenState extends State<SSACalculatorScreen> {
     final rows = [
       ('Yearly deposit', AppSettings.instance.formatRupee(_yearlyDeposit, noDecimals: true), context.text),
       ('Deposit period', '$_depositYears years', context.text),
+      ('Interest rate', '${_rate.toStringAsFixed(1)}% p.a.', context.text),
       ('Total deposited', AppSettings.instance.formatRupee(_totalDeposited, noDecimals: true), context.text),
-      ('Maturity period', '$_maturityYears years (age 21)', context.text),
+      ('Maturity period', '$_maturityYears years (age ${_girlAge.toInt() + 21})', context.text),
       ('Interest earned', AppSettings.instance.formatRupee(_interest, noDecimals: true), const Color(0xFF059669)),
       ('Maturity amount', AppSettings.instance.formatRupee(_maturity, noDecimals: true), const Color(0xFF059669)),
     ];
